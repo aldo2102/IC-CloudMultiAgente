@@ -1,42 +1,27 @@
 package agenteVagrant;
 
+import static agenteVagrant.GlobalVars.*;
+
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Scanner;
-
-import jade.core.AID;
-import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
-import jade.core.Agent;
-
 import java.io.PrintWriter;
+
+import jade.core.Agent;
 
 public class AgenteMonitor extends Agent {
 
 	String r0, ler;
-	String vagrant2 = "explorer.exe /separate /c";
-	String vagrant3 = "cmd.exe";
-	String vagrant = "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe";
 	ProcessBuilder pb;
 	Process pr;
 	BufferedReader reader;
 	String line;
-	String init = "vagrant init";
-	String up = "vagrant up --provider virtualbox";
-	// String box="ubuntu/bionic64";
-	String box = "aldohenrique/mase";
-	String status = "'dstat -cmdn' ";
 
 	@Override
 	protected void setup() {
 
 		String usuario = principal.controle + "";
-
-		String vagrant2 = "/c";
-		String vagrant3 = "cmd.exe";
-		String vagrant = "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe";
 		ProcessBuilder pb;
 		Process pr;
 		System.out.println("cheguis1");
@@ -53,7 +38,7 @@ public class AgenteMonitor extends Agent {
 
 		try {
 
-			String[] command4 = { vagrant3, vagrant2,
+			String[] command4 = { cmdDotExe, vagrant4,
 					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && vagrant ssh -c 'sudo apt-get install dstat'" };
 
 			pb = new ProcessBuilder(command4);
@@ -73,7 +58,7 @@ public class AgenteMonitor extends Agent {
 			rt.exec("cmd.exe /c cd C:\\HashiCorp\\Vagrant\\" + usuario + " && start cmd.exe /k \"vagrant ssh\"");
 			pr.waitFor();
 
-			String[] command = { vagrant3, vagrant2,
+			String[] command = { cmdDotExe, vagrant4,
 					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && vagrant ssh -c 'dstat -cmdn '" };
 
 			pb = new ProcessBuilder(command);
@@ -86,12 +71,12 @@ public class AgenteMonitor extends Agent {
 			reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 
 			line = "";
-			String cpu = "";
-			float cpuUsed = 0;
-			float cpuFree = 0;
-			float memUsed = 0;
-			float memFree = 0;
 			int count = 0;
+			// String cpu = "";
+			// float cpuFree = 0;
+			float cpuUsed = 0;
+			// float memFree = 0;
+			float memUsed = 0;
 			float mediaCpu = 0;
 			float mediaMem = 0;
 
@@ -113,9 +98,9 @@ public class AgenteMonitor extends Agent {
 				try {
 					cpuUsed += Float.parseFloat(parts[0]);
 					cpuUsed += Float.parseFloat(parts[1]);
-					cpuFree += Float.parseFloat(parts[2]);
+					// cpuFree += Float.parseFloat(parts[2]);
 					memUsed += Float.parseFloat(parts[7]);
-					memFree += Float.parseFloat(parts[10]);
+					// memFree += Float.parseFloat(parts[10]);
 					count++;
 
 					mediaCpu = cpuUsed / count;

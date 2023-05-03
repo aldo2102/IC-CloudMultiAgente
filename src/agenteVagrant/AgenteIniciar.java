@@ -1,5 +1,7 @@
 package agenteVagrant;
 
+import static agenteVagrant.GlobalVars.*;
+
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,18 +13,10 @@ import jade.lang.acl.ACLMessage;
 
 public class AgenteIniciar extends Agent {
 	String r0, ler;
-	String vagrant2 = "/c";
-	String vagrant3 = "cmd.exe";
-	String vagrant = "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe";
 	ProcessBuilder pb;
 	Process pr;
 	BufferedReader reader;
 	String line;
-	String init = "vagrant init";
-	String up = "vagrant up --provider virtualbox";
-	// String box="ubuntu/bionic64";
-	String box = "aldohenrique/mase";
-	String status = "'dstat -cmdn' ";
 
 	@Override
 	protected void setup() {
@@ -32,8 +26,6 @@ public class AgenteIniciar extends Agent {
 		principal.controle++;
 		String usuario = principal.controle + "";
 
-		ProcessBuilder processBuilder = new ProcessBuilder();
-
 		// Execute no Windows, cmd, / c = terminate ap�s a execu��o
 		// processBuilder.command("cmd.exe", "/c","cd
 		// C:\\HashiCorp\\Vagrant\\"+usuario);
@@ -41,12 +33,12 @@ public class AgenteIniciar extends Agent {
 		try {
 
 			try {
-				String[] commandi = { vagrant3, vagrant2, "cd " + "C:\\HashiCorp\\Vagrant" + " && mkdir " + usuario };
+				String[] commandi = { cmdDotExe, vagrant2, "cd " + "C:\\HashiCorp\\Vagrant" + " && mkdir " + usuario };
 
 				pb = new ProcessBuilder(commandi);
 				pr = pb.start();
 
-				String[] commande = { vagrant3, vagrant2,
+				String[] commande = { cmdDotExe, vagrant2,
 						"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + "&& vagrant init" };
 
 				pb = new ProcessBuilder(commande);
@@ -73,12 +65,13 @@ public class AgenteIniciar extends Agent {
 			// mkdir usuario
 			// Process process = processBuilder.start();
 
-			System.out.println("cd C:\\HashiCorp\\Vagrant\\" + usuario + " && " + vagrant + " box add " + box);
-			String[] command1 = { vagrant3, vagrant2,
-					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && " + vagrant + " box add " + box };
+			System.out
+					.println("cd C:\\HashiCorp\\Vagrant\\" + usuario + " && " + vagrantDotExePath + " box add " + box);
+			String[] command1 = { cmdDotExe, vagrant2,
+					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && " + vagrantDotExePath + " box add " + box };
 
-			System.out.println("cd " + "C:\\HashiCorp\\Vagrant" + usuario + " && " + vagrant + " up");
-			String[] command2 = { vagrant3, vagrant2, "cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && " + up };
+			System.out.println("cd " + "C:\\HashiCorp\\Vagrant" + usuario + " && " + vagrantDotExePath + " up");
+			String[] command2 = { cmdDotExe, vagrant2, "cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && " + up };
 			pr.waitFor();
 
 			pb = new ProcessBuilder(command1);

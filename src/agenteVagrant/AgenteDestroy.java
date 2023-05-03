@@ -1,33 +1,18 @@
 package agenteVagrant;
 
+import static agenteVagrant.GlobalVars.*;
+
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Scanner;
 
-import jade.core.AID;
-import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
 import jade.core.Agent;
 
-import java.io.PrintWriter;
 import javax.swing.JOptionPane;
 
 public class AgenteDestroy extends Agent {
 	String r0, ler;
-
-	String vagrant2 = "/c";
-	String vagrant3 = "cmd.exe";
-	String vagrant = "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe";
-
 	BufferedReader reader;
 	String line;
-	String init = "vagrant init";
-	String up = "vagrant up --provider virtualbox";
-	// String box="ubuntu/bionic64";
-	String box = "aldohenrique/mase";
-	String status = "'dstat -cmdn' ";
 	ProcessBuilder pb;
 	Process pr;
 
@@ -46,14 +31,11 @@ public class AgenteDestroy extends Agent {
 		// System.out.print("Escreva o nome da maquina que ser� destru�da");
 		usuario = JOptionPane.showInputDialog(null, "Escreva o nome da maquina que ser� destru�da", "ALERTA",
 				JOptionPane.WARNING_MESSAGE);
-		String a;
-
-		ProcessBuilder processBuilder = new ProcessBuilder();
 		// Scanner ler=new Scanner(System.in);
 		// usuario=ler.next();
 
 		try {
-			String[] commandd = { vagrant3, vagrant2,
+			String[] commandd = { cmdDotExe, vagrant2,
 					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && vagrant destroy -f" };
 
 			pb = new ProcessBuilder(commandd);

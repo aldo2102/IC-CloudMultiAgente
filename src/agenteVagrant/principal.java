@@ -19,9 +19,8 @@ public class principal {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		int r0, r1;
+		int r0;
 		int port = 10000;
-		int controler = 1;
 
 		ServerSocket socket = null;
 
