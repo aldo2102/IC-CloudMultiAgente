@@ -7,11 +7,9 @@ Eclipse
 Vagrant
 Virtual box
 
-
 # Equipe
 
 Orientador: [Aldo Henrique](https://lattes.cnpq.br/0809451989260955)
-
 
 Desenvolvedores e alunos:
 

@@ -15,17 +15,16 @@ import jade.wrapper.ControllerException;
 import jade.wrapper.PlatformController;
 
 public class principal {
-	static int controle=0;
-	
-	
+	static int controle = 0;
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		int r0,r1;
+		int r0, r1;
 		int port = 10000;
 		int controler = 1;
 
-		 ServerSocket socket = null;
-		
+		ServerSocket socket = null;
+
 		Random gerador = new Random();
 		try {
 			socket = new ServerSocket(0);
@@ -33,68 +32,80 @@ public class principal {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		port = socket.getLocalPort()+(gerador.nextInt(25)+1);
+		port = socket.getLocalPort() + (gerador.nextInt(25) + 1);
 		ProfileImpl p = new ProfileImpl();
 		p.setParameter(Profile.MAIN_PORT, port + "");
 		p.setParameter(Profile.CONTAINER_NAME, "Main-Container" + port);
 		ContainerController cc = Runtime.instance().createMainContainer(p);
 		PlatformController plataforma;
-		//System.out.println("MENU MÁQUINA VIRTUAIS");
-		//System.out.println("(2)Criar uma máquina");
-		//System.out.println("(1) Destruir uma máquina");
-		
-		JOptionPane.showMessageDialog(null,"SEJA BEM-VINDO \n SMA - SISTEMA MULTIAGENTE");
-		String ler1 = JOptionPane.showInputDialog(null,"MENU MÁQUINA VIRTUAIS\n(1)Criar uma máquina\n(0)Sair do programa");
+		// System.out.println("MENU Mï¿½QUINA VIRTUAIS");
+		// System.out.println("(2)Criar uma mï¿½quina");
+		// System.out.println("(1) Destruir uma mï¿½quina");
+
+		JOptionPane.showMessageDialog(null, "SEJA BEM-VINDO \n SMA - SISTEMA MULTIAGENTE");
+		String ler1 = JOptionPane.showInputDialog(null,
+				"MENU Mï¿½QUINA VIRTUAIS\n(1)Criar uma mï¿½quina\n(0)Sair do programa");
 		r0 = Integer.parseInt(ler1);
-		
-				//r0 = 1;
-				while(r0 != 0){
-					if(controle>0) {
-						String ler2 = JOptionPane.showInputDialog(null,"MENU MÁQUINA VIRTUAIS\n(1)Criar uma máquina\n(2)Destruir Máquina\n(0)Sair do programa");
-						r0 = Integer.parseInt(ler2);
-					}
-					/*System.out.println("(0)Sair do programa");
-					Scanner ler =new Scanner (System.in);
-					r0=ler.nextInt();*/
-					
-					try {
-					switch(r0) {
+
+		// r0 = 1;
+		while (r0 != 0) {
+			if (controle > 0) {
+				String ler2 = JOptionPane.showInputDialog(null,
+						"MENU Mï¿½QUINA VIRTUAIS\n(1)Criar uma mï¿½quina\n(2)Destruir Mï¿½quina\n(0)Sair do programa");
+				r0 = Integer.parseInt(ler2);
+			}
+			/*
+			 * System.out.println("(0)Sair do programa");
+			 * Scanner ler =new Scanner (System.in);
+			 * r0=ler.nextInt();
+			 */
+
+			try {
+				switch (r0) {
 					case 1:
-					plataforma = cc.getPlatformController();
-					AgentController AgenteIniciar= plataforma.createNewAgent("AgenteIniciar", "agenteVagrant.AgenteIniciar", null);
-					AgenteIniciar.start();
-					
-					plataforma = cc.getPlatformController();
-					AgentController AgenteMonitor= plataforma.createNewAgent("AgenteMonitor", "agenteVagrant.AgenteMonitor", null);
-					//criar agente
-					AgenteMonitor.start();
-					
-					try{Thread.sleep(140000);}catch (InterruptedException e3) {
-						// TODO Auto-generated catch block
-						e3.printStackTrace();}
-					break;
+						plataforma = cc.getPlatformController();
+						AgentController AgenteIniciar = plataforma.createNewAgent("AgenteIniciar",
+								"agenteVagrant.AgenteIniciar", null);
+						AgenteIniciar.start();
+
+						plataforma = cc.getPlatformController();
+						AgentController AgenteMonitor = plataforma.createNewAgent("AgenteMonitor",
+								"agenteVagrant.AgenteMonitor", null);
+						// criar agente
+						AgenteMonitor.start();
+
+						try {
+							Thread.sleep(140000);
+						} catch (InterruptedException e3) {
+							// TODO Auto-generated catch block
+							e3.printStackTrace();
+						}
+						break;
 					case 2:
 						plataforma = cc.getPlatformController();
-						AgentController AgenteDestroy= plataforma.createNewAgent("AgenteDestroy", "agenteVagrant.AgenteDestroy", null);
-						//criar agente
+						AgentController AgenteDestroy = plataforma.createNewAgent("AgenteDestroy",
+								"agenteVagrant.AgenteDestroy", null);
+						// criar agente
 						AgenteDestroy.start();
-						
-						try{Thread.sleep(10000);}catch (InterruptedException e3) {
-							// TODO Auto-generated catch block
-							e3.printStackTrace();}
-					break;
-					case 0:
-						JOptionPane.showMessageDialog(null,"SISTEMA ENCERRADO");
-					
-					break;
-					}
-					System.out.println("fim");
-					}catch (ControllerException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					}
-					}
-	}
 
+						try {
+							Thread.sleep(10000);
+						} catch (InterruptedException e3) {
+							// TODO Auto-generated catch block
+							e3.printStackTrace();
+						}
+						break;
+					case 0:
+						JOptionPane.showMessageDialog(null, "SISTEMA ENCERRADO");
+
+						break;
+				}
+				System.out.println("fim");
+			} catch (ControllerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
 
 }
