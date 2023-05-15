@@ -1,6 +1,6 @@
-package agenteVagrant;
+package agentVagrant;
 
-import static agenteVagrant.GlobalVars.*;
+import static agentVagrant.GlobalVars.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import jade.core.Agent;
 
 import javax.swing.JOptionPane;
 
-public class AgenteDestroy extends Agent {
+public class AgentDestroy extends Agent {
 	String r0, ler;
 	BufferedReader reader;
 	String line;

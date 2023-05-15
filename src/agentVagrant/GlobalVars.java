@@ -1,4 +1,4 @@
-package agenteVagrant;
+package agentVagrant;
 
 public class GlobalVars {
     public static String vagrantDotExePath = "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe";

@@ -1,6 +1,6 @@
-package agenteVagrant;
+package agentVagrant;
 
-import static agenteVagrant.GlobalVars.*;
+import static agentVagrant.GlobalVars.*;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 
 import jade.core.Agent;
 
-public class AgenteMonitor extends Agent {
+public class AgentMonitor extends Agent {
 
 	String r0, ler;
 	ProcessBuilder processBuilder;

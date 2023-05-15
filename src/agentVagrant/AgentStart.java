@@ -1,6 +1,6 @@
-package agenteVagrant;
+package agentVagrant;
 
-import static agenteVagrant.GlobalVars.*;
+import static agentVagrant.GlobalVars.*;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -11,7 +11,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 
-public class AgenteIniciar extends Agent {
+public class AgentStart extends Agent {
 	String r0, ler;
 	ProcessBuilder pb;
 	Process pr;
@@ -68,8 +68,8 @@ public class AgenteIniciar extends Agent {
 			e.printStackTrace();
 		}
 		ACLMessage message = new ACLMessage(ACLMessage.INFORM);
-		message.addReceiver(new AID("AgenteMonitor", AID.ISLOCALNAME));
-		message.setContent("Login Agente Monitor-Online");
+		message.addReceiver(new AID("AgentMonitor", AID.ISLOCALNAME));
+		message.setContent("Login Agent Monitor-Online");
 		this.send(message);
 		System.out.println("---- Fim do Agente Inicio ----");
 		doDelete();

@@ -1,4 +1,4 @@
-package agenteVagrant;
+package agentVagrant;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -47,14 +47,14 @@ public class principal {
 			try {
 				if (r0 == 1) {
 					plataforma = cc.getPlatformController();
-					AgentController AgenteIniciar = plataforma.createNewAgent("AgenteIniciar",
-							"agenteVagrant.AgenteIniciar", null);
-					AgenteIniciar.start();
+					AgentController AgentStart = plataforma.createNewAgent("AgentStart",
+							"agentVagrant.AgentStart", null);
+					AgentStart.start();
 
 					plataforma = cc.getPlatformController();
-					AgentController AgenteMonitor = plataforma.createNewAgent("AgenteMonitor",
-							"agenteVagrant.AgenteMonitor", null);
-					AgenteMonitor.start();
+					AgentController AgentMonitor = plataforma.createNewAgent("AgentMonitor",
+							"agentVagrant.AgentMonitor", null);
+					AgentMonitor.start();
 
 					try {
 						Thread.sleep(140000);
@@ -64,9 +64,9 @@ public class principal {
 
 				} else if (r0 == 2) {
 					plataforma = cc.getPlatformController();
-					AgentController AgenteDestroy = plataforma.createNewAgent("AgenteDestroy",
-							"agenteVagrant.AgenteDestroy", null);
-					AgenteDestroy.start();
+					AgentController AgentDestroy = plataforma.createNewAgent("AgentDestroy",
+							"agentVagrant.AgentDestroy", null);
+					AgentDestroy.start();
 
 					try {
 						Thread.sleep(10000);
