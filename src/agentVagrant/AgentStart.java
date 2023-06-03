@@ -12,7 +12,6 @@ import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 
 public class AgentStart extends Agent {
-	String r0, ler;
 	ProcessBuilder pb;
 	Process pr;
 	BufferedReader reader;
@@ -21,12 +20,19 @@ public class AgentStart extends Agent {
 	@Override
 	protected void setup() {
 		System.out.println("---- Inicio do Agente Iniciar ----");
-		principal.controle++;
-		String usuario = principal.controle + "";
+		GlobalVars.control++;
+		String usuario = GlobalVars.control + "";
+		// usuario = numero da pasta que vai ser criada
+		System.out.println(usuario);
 		try {
+			// Coreção do vagrant 2, /c não é sempre o local executado!
+			// commando 1 do process build = { cmd.exe /c
+			// C:\\
+			// Correção proposta: a busca da pasta hashicorp deve ser buscada a pasta da instalação
 			String[] commandi = { cmdDotExe, vagrant2, "cd " + "C:\\HashiCorp\\Vagrant" + " && mkdir " + usuario };
 			pb = new ProcessBuilder(commandi);
 			pr = pb.start();
+			// começa o build do processo.
 			String[] commande = { cmdDotExe, vagrant2,
 					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + "&& vagrant init" };
 			pb = new ProcessBuilder(commande);
@@ -36,7 +42,6 @@ public class AgentStart extends Agent {
 			myWriter.write("Vagrant.configure(\"2\") do |config|\r\n"
 					+ "  config.vm.box = \"" + box + "\"\r\n"
 					+ "  config.vm.box_version = \"1\"\r\n"
-
 					+ "  config.vm.provider 'virtualbox' do |vb|\r\n"
 					+ "vb.memory = " + 512 + "\r\n"
 					+ "vb.cpus =" + 2 + "\r\n"

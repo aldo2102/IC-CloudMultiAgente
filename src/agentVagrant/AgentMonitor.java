@@ -21,7 +21,7 @@ public class AgentMonitor extends Agent {
 	@Override
 	protected void setup() {
 
-		String usuario = principal.controle + "";
+		String usuario = GlobalVars.control + "";
 		jade.lang.acl.ACLMessage TM0 = blockingReceive();
 		System.out.println(TM0.getContent());
 		ProcessBuilder processBuilder = new ProcessBuilder();

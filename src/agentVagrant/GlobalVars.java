@@ -9,4 +9,8 @@ public class GlobalVars {
     public static String box = "aldohenrique/mase";
     // public static String status = "'dstat -cmdn' ";
     public static String vagrant4 = "explorer.exe /separate /c";
+    public static int control = 0;
+    public static int CREATE_AGENT = 1;
+    public static int DESTOY_AGENT = 2;
+    public static int EXIT_SYSTEM = 3;
 }
