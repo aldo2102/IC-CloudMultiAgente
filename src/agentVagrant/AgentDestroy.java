@@ -23,9 +23,13 @@ public class AgentDestroy extends Agent {
 		usuario = JOptionPane.showInputDialog(null, "Escreva o nome da maquina que será destruída", "ALERTA",
 				JOptionPane.WARNING_MESSAGE);
 		try {
-			String[] commandd = { cmdDotExe, vagrant2,
-					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && vagrant destroy -f" };
-			pb = new ProcessBuilder(commandd);
+			 String command;
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                command = vagrantCommand + " /c cd " + vagrantDir + "\\" + usuario + " && " + vagrantCommand + " destroy -f";
+            } else {
+                command = vagrantCommand + " cd " + vagrantDir + "/" + usuario + " && " + vagrantCommand + " destroy -f";
+            }
+			pb = new ProcessBuilder(command);
 			pr = pb.start();
 			doDelete();
 		} catch (IOException e) {

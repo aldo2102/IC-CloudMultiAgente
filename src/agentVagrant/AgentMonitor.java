@@ -14,7 +14,7 @@ public class AgentMonitor extends Agent {
 
 	String r0, ler;
 	ProcessBuilder processBuilder;
-	Process startProcess;
+	Process pr;
 	BufferedReader reader;
 	String line;
 
@@ -29,15 +29,19 @@ public class AgentMonitor extends Agent {
 		processBuilder.command("cmd.exe", "/c", "vagrant status");
 
 		try {
-			// command4 não está sendo executado
-			String[] command4 = { cmdDotExe, vagrant4,
-					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && vagrant ssh -c 'sudo apt-get install dstat'" };
+			 String[] command4;
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                command4 = new String[]{"cmd.exe", "/c",
+                        "cd " + GlobalVars.vagrantDir + " && " + GlobalVars.vagrantCommand + " ssh -c 'sudo apt-get install dstat'"};
+            } else {
+                command4 = new String[]{GlobalVars.vagrantCommand, "cd", GlobalVars.vagrantDir, "&&", GlobalVars.vagrantCommand, "ssh -c 'sudo apt-get install dstat'"};
+            }
 
 			processBuilder = new ProcessBuilder(command4);
-			Process startProcess = processBuilder.start();
-			startProcess.waitFor();
-			reader = new BufferedReader(new InputStreamReader(startProcess.getInputStream()));
-			while (startProcess.waitFor() == 0 && (line = reader.readLine()) != null) {
+			Process pr = processBuilder.start();
+			//pr.waitFor();
+			reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+			while (pr.waitFor() == 0 && (line = reader.readLine()) != null) {
 				System.out.println("Entrou no loop");
 				System.out.println(line);
 			}
@@ -45,16 +49,25 @@ public class AgentMonitor extends Agent {
 			System.out.println("Dstat Instalado");
 
 			Runtime runtime = Runtime.getRuntime();
-			runtime.exec("cmd.exe /c cd C:\\HashiCorp\\Vagrant\\" + usuario + " && start cmd.exe /k \"vagrant ssh\"");
-			startProcess.waitFor();
+			 if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                runtime.exec("cmd.exe /c cd " + GlobalVars.vagrantDir + " && start cmd.exe /k \"" + GlobalVars.vagrantCommand + " ssh\"");
+            } else {
+                runtime.exec(GlobalVars.vagrantCommand + " cd " + GlobalVars.vagrantDir + " && " + GlobalVars.vagrantCommand + " ssh");
+            }
+            //pr.waitFor();
 
-			String[] command = { cmdDotExe, vagrant4,
-					"cd " + "C:\\HashiCorp\\Vagrant\\" + usuario + " && vagrant ssh -c 'dstat -cmdn '" };
+			String[] command;
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                command = new String[]{"cmd.exe", "/c",
+                        "cd " + GlobalVars.vagrantDir + " && " + GlobalVars.vagrantCommand + " ssh -c 'dstat -cmdn '"};
+            } else {
+                command = new String[]{GlobalVars.vagrantCommand, "cd", GlobalVars.vagrantDir, "&&", GlobalVars.vagrantCommand, "ssh -c 'dstat -cmdn'"};
+            }
 
-			processBuilder = new ProcessBuilder(command);
+    		processBuilder = new ProcessBuilder(command);
 
-			startProcess = processBuilder.start();
-			reader = new BufferedReader(new InputStreamReader(startProcess.getInputStream()));
+			pr = processBuilder.start();
+			reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 
 			line = "";
 			int count = 0;
@@ -84,12 +97,11 @@ public class AgentMonitor extends Agent {
 				mediaCpu = cpuUsed / count;
 				mediaMem = memUsed / count;
 
-				FileWriter arq = new FileWriter(
-						"C:\\HashiCorp\\Vagrant\\" + usuario + "\\MediaCpuMem" + usuario + ".txt");
-				PrintWriter gravarArq = new PrintWriter(arq);
-				gravarArq.println("Media de CPU usada =" + mediaCpu);
-				gravarArq.println("Media de Memoria usada em MegaBits =" + mediaMem);
-				arq.close();
+				FileWriter arq = new FileWriter(GlobalVars.vagrantDir + "/MediaCpuMem" + usuario + ".txt");
+                PrintWriter gravarArq = new PrintWriter(arq);
+                gravarArq.println("Media de CPU usada =" + mediaCpu);
+                gravarArq.println("Media de Memoria usada em MegaBits =" + mediaMem);
+                arq.close();
 			}
 
 		} catch (IOException | InterruptedException e) {

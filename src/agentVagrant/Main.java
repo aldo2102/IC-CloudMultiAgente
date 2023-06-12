@@ -15,7 +15,12 @@ import jade.wrapper.PlatformController;
 
 public class Main {
 
+
+    public static int controller;
+
     public static void main(String[] args) {
+		
+   
         try (ServerSocket socket = new ServerSocket(0)) {
             int port = socket.getLocalPort();
             ProfileImpl p = new ProfileImpl();
@@ -25,30 +30,34 @@ public class Main {
             JOptionPane.showMessageDialog(null,
                     "SEJA BEM-VINDO "
                             + "\n SMA - SISTEMA MULTIAGENTE");
-            String readInput = JOptionPane.showInputDialog(null, "MENU MÁQUINA VIRTUAIS\n (1)Criar uma máquina\n (3)Sair do programa");
+            String readInput = JOptionPane.showInputDialog(null, "MENU MÃ�QUINA VIRTUAIS\n (1)Criar uma mÃ¡quina\n (3)Sair do programa");
             int optionPaneInput = Integer.parseInt(readInput);
             while (optionPaneInput != 3) {
                 String readInput2 = JOptionPane.showInputDialog(null,
-                        "MENU MÁQUINA VIRTUAIS\n (1)Criar uma máquina\n (2)Destruir Máquina\n (3)Sair do programa");
+                        "MENU MÃ�QUINA VIRTUAIS\n (1)Criar uma mÃ¡quina\n (2)Destruir MÃ¡quina\n (3)Sair do programa");
                 optionPaneInput = Integer.parseInt(readInput2);
                 try {
                     PlatformController platformController = containerController.getPlatformController();
                     if (optionPaneInput == GlobalVars.CREATE_AGENT) {
                         try {
-                            AgentController AgentStart = platformController.createNewAgent("AgentStart",
-                                    "agentVagrant.AgentStart", null);
-                            AgentStart.start();
+                        	//implementacao do System.currentTimeMillis() para que nao haja duplicidade de agentes
+                        	AgentController agentStart = platformController.createNewAgent("AgentStart" + System.currentTimeMillis(),
+                        	        "agentVagrant.AgentStart", null);
+                        	agentStart.start();
 
-                            AgentController AgentMonitor = platformController.createNewAgent("AgentMonitor",
-                                    "agentVagrant.AgentMonitor", null);
-                            AgentMonitor.start();
+
+                        	AgentController agentMonitor = platformController.createNewAgent("AgentMonitor" + System.currentTimeMillis(),
+                        	        "agentVagrant.AgentMonitor", null);
+                        	agentMonitor.start();
+
 //                            Thread.sleep(140000);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else if (optionPaneInput == GlobalVars.DESTOY_AGENT) {
                         try {
-                            AgentController AgentDestroy = platformController.createNewAgent("AgentDestroy",
+
+                            AgentController AgentDestroy = platformController.createNewAgent("AgentDestroy"+ + System.currentTimeMillis(),
                                     "agentVagrant.AgentDestroy", null);
                             AgentDestroy.start();
 //                            Thread.sleep(10000);
