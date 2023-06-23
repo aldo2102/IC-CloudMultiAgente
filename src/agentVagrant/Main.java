@@ -2,9 +2,9 @@ package agentVagrant;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.concurrent.CompletableFuture;
 
-import javax.swing.JOptionPane;
-
+import jade.core.AgentState;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -20,29 +20,41 @@ public class Main {
     public static void main(String[] args) {
         try (ServerSocket socket = new ServerSocket(0)) {
             int port = socket.getLocalPort();
-            ProfileImpl p = new ProfileImpl();
-               p.setParameter(Profile.MAIN_PORT, 10000 + "");
-            p.setParameter(Profile.CONTAINER_NAME, "Main-Container" + port);
-            ContainerController containerController = Runtime.instance().createMainContainer(p);
+            ProfileImpl profile = new ProfileImpl();
+            profile.setParameter(Profile.MAIN_PORT, 10000 + "");
+            profile.setParameter(Profile.CONTAINER_NAME, "Main-Container" + port);
+            ContainerController containerController = Runtime.instance().createMainContainer(profile);
             try {
                 PlatformController platformController = containerController.getPlatformController();
-                try {
-                    // Create Agent
-                    AgentController agentStart = platformController.createNewAgent("AgentStart" + System.currentTimeMillis(),
-                            "agentVagrant.AgentStart", null);
-                    agentStart.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.exit(1);
-                }
+
+                CompletableFuture<Void> agentFuture = CompletableFuture.runAsync(() -> {
+                    try {
+                        AgentController agentStart = platformController.createNewAgent("AgentStart" + System.currentTimeMillis(),
+                                "agentVagrant.AgentStart", null);
+                        agentStart.start();
+                        agentStart.getState().getCode();
+                        int state;
+                        do {
+                            Thread.sleep(10000);
+                            state = agentStart.getState().getCode();
+                        } while (!(state == 5));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+                agentFuture.thenRun(() -> {
+                    System.exit(0);
+                });
+
             } catch (ControllerException e) {
-                    e.printStackTrace();
-                }
-            } catch (IOException e) {
                 e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+}
 //            JOptionPane.showMessageDialog(null,
 //                    "SEJA BEM-VINDO "
 //                            + "\n SMA - SISTEMA MULTIAGENTE");
