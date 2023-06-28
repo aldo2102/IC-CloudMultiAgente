@@ -6,6 +6,24 @@ public class GlobalVars {
     public static String box;
     public static String cmdPath;
     
+    public static String getOsCommand() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return "cmd";
+        } else {
+            return "bash";
+        }
+    }
+
+    public static String getCmdPath() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return "/c";
+        } else {
+            return "-c";
+        }
+    }
+    
 
     static {
         String osName = System.getProperty("os.name").toLowerCase();

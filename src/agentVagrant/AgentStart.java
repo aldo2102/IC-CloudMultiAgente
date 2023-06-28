@@ -7,6 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Scanner;
+//import java.util.UUID;
+
+import javax.swing.JOptionPane;
 
 import static agentVagrant.GlobalVars.*;
 
@@ -19,9 +23,19 @@ public class AgentStart extends Agent {
     protected void setup() {
         System.out.println("----AgentStart Starting----");
         Main.controller++;
-        String MachineName = Integer.toString(Main.controller);
+        //String MachineName = Integer.toString(Main.controller);
+
+        
 
         try {
+            Scanner scanner = new Scanner(System.in);
+            String MachineName = JOptionPane.showInputDialog(null,"Enter the machine name: ");
+            scanner.close();
+            
+            
+            //String machineId = UUID.randomUUID().toString();
+            //esse id gerado ainda nao é exibido na listagem de maquinas
+
             // Disk root dir disk
             File rootDir = new File("/");
             String rootPath = rootDir.getAbsolutePath();
@@ -41,8 +55,8 @@ public class AgentStart extends Agent {
                 // TODO: Substituir essa forma de criar o diretório do hashicorp, caso não exista, o úsuario pode colocar manualmente onde está ou ele deve instalar o vagrant e instalar novamente o IC-CloudMultiAgente
             }
 
-            // Vagrant Virtual Machine Path
-            String vagrantMachinePath = Paths.get(hashicorpPath, MachineName).toString();
+            // Vagrant Virtual Machine Path '+ "_" + machineId'
+            String vagrantMachinePath = Paths.get(hashicorpPath, MachineName ).toString();
             Path virtualMachinesPath = Paths.get(vagrantMachinePath);
 
             // Verify if the Virtual Machine dir already exists before creating
