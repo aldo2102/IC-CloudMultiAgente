@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 //import java.util.UUID;
 
 import javax.swing.JOptionPane;
@@ -25,14 +26,11 @@ public class AgentStart extends Agent {
         Main.controller++;
         //String MachineName = Integer.toString(Main.controller);
 
-        
-
         try {
             Scanner scanner = new Scanner(System.in);
             String MachineName = JOptionPane.showInputDialog(null,"Enter the machine name: ");
             scanner.close();
-            
-            
+
             //String machineId = UUID.randomUUID().toString();
             //esse id gerado ainda nao é exibido na listagem de maquinas
 
@@ -201,7 +199,22 @@ public class AgentStart extends Agent {
         }
 
         System.out.println("----AgentStart Ended..----");
+
+        Object[] args = getArguments();
+
+        CountDownLatch latch;
+
+        if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
+            latch = (CountDownLatch) args[0];
+        } else {
+            System.err.println("Invalid reference to the CountDownLatch");
+            doDelete();
+            return;
+        }
+
         doDelete();
+
+        latch.countDown();
     }
 }
 

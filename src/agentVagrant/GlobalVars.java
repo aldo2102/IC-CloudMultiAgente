@@ -33,7 +33,7 @@ public class GlobalVars {
             up = "vagrant up";
             box = "aldohenrique/mase";
         } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("mac")) {
-//            cmdPath = "/c";
+            cmdPath = "-c";
             osCommand = "/bin/bash";
             up = "vagrant up";
             box = "aldohenrique/mase";
@@ -42,11 +42,10 @@ public class GlobalVars {
         }
     }
     public static String vagrant4 = "explorer.exe /separate /c";
-
-    public static int LIST_MACHINES = 0;
-    public static int CREATE_MACHINES = 1;
-    public static int DESTROY_MACHINES = 2;
-    public static int MONITOR_MACHINES = 3;
+    public static final int CREATE_MACHINES = 1;
+    public static final int LIST_MACHINES = 2;
+    public static final int MONITOR_MACHINES = 3;
+    public static final int DESTROY_MACHINES = 4;
 
     public static int MEMORY = 512;
     public static int CPUS = 2;

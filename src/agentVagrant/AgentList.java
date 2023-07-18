@@ -1,27 +1,25 @@
 package agentVagrant;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import jade.core.Agent;
 
+import static agentVagrant.GlobalVars.*;
+
 public class AgentList extends Agent {
-	private String osCommand;
-    private String cmdPath;
 
     @Override
     protected void setup() {
         System.out.println("----AgentList Starting----");
 
         try {
-            // list existing virtual machines
-        	osCommand = GlobalVars.getOsCommand();
-            cmdPath = GlobalVars.getCmdPath();
+            // List existing virtual machines
 
-            String[] listMachines = {osCommand, cmdPath, "vagrant", "global-status"};
+            String[] listMachines = {osCommand, cmdPath, "vagrant", "global-status", "--prune"};
             System.out.println("Listing machines: " + Arrays.toString(listMachines));
             ProcessBuilder pb = new ProcessBuilder(listMachines);
             Process pr = pb.start();
@@ -29,7 +27,7 @@ public class AgentList extends Agent {
             BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String line;
 
-            // print result on output
+            // Print result on output
             System.out.println("Existing machines:");
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
@@ -42,8 +40,21 @@ public class AgentList extends Agent {
         }
 
         System.out.println("----AgentList Ended----");
-        doDelete();
-    }
 
-   
+        Object[] args = getArguments();
+
+        CountDownLatch latch;
+
+        if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
+            latch = (CountDownLatch) args[0];
+        } else {
+            System.err.println("Invalid reference to the CountDownLatch");
+            doDelete();
+            return;
+        }
+
+        doDelete();
+
+        latch.countDown();
+    }
 }

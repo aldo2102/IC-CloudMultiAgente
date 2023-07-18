@@ -3,47 +3,64 @@ package agentVagrant;
 import jade.core.Agent;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
-import jade.wrapper.StaleProxyException;
+
+import static agentVagrant.GlobalVars.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 public class AgentDestroy extends Agent {
-    private String osCommand;
-    private String cmdPath;
 
     @Override
     protected void setup() {
         System.out.println("----AgentDestroy Starting----");
 
-        // Obter uma referÍncia para o container do agente
+        // Get a reference to the agent container
         AgentContainer container = getContainerController();
 
         try {
-            // Criar uma inst‚ncia de AgentList no container
-            AgentController agentListController = container.createNewAgent("AgentList", "agentVagrant.AgentList", null);
-            agentListController.start();
-
-            // Aguardar o tÈrmino do agente AgentList
-            //agentListController.join();
-
-            // Prompt user to enter the machine name to destroy
-            String machineName = getUserInput("Enter the name of the machine to destroy: ");
-
-            // Destroy the selected machine
-            destroyMachine(machineName);
-
-            System.out.println("----AgentDestroy Ended----");
-            doDelete();
-        } catch (StaleProxyException e) {
+            CountDownLatch latch = new CountDownLatch(1);
+            Object[] agentArgs = new Object[]{latch};
+            AgentController agentList = container.createNewAgent(
+                    "AgentList" + System.currentTimeMillis(),
+                    "agentVagrant.AgentList",
+                    agentArgs);
+            agentList.start();
+            latch.await();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Prompt user to enter the machine name to destroy
+        String machineName = getUserInput();
+
+        // Destroy the selected machine
+        destroyMachine(machineName);
+
+        System.out.println("----AgentDestroy Ended----");
+
+        Object[] args = getArguments();
+
+        CountDownLatch latch;
+
+        if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
+            latch = (CountDownLatch) args[0];
+        } else {
+            System.err.println("Invalid reference to the CountDownLatch");
+            doDelete();
+            return;
+        }
+
+        doDelete();
+
+        latch.countDown();
     }
 
-    private String getUserInput(String message) {
-        System.out.print(message);
+    private String getUserInput() {
+        System.out.print("Enter the id of the machine to be destroyed: ");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
             return reader.readLine();
@@ -54,11 +71,9 @@ public class AgentDestroy extends Agent {
     }
 
     private void destroyMachine(String machineName) {
-        osCommand = GlobalVars.getOsCommand();
-        cmdPath = GlobalVars.getCmdPath();
 
         try {
-            // Executar o comando 'vagrant destroy' para destruir a m·quina especificada
+            // Run the 'vagrant destroy' command to destroy the specified machine
             String[] destroyMachineCommand = {osCommand, cmdPath, "vagrant", "destroy", machineName, "--force"};
             System.out.println("Destroying machine: " + Arrays.toString(destroyMachineCommand));
             ProcessBuilder pb = new ProcessBuilder(destroyMachineCommand);
@@ -72,47 +87,3 @@ public class AgentDestroy extends Agent {
         }
     }
 }
-
-
-
-
-
-
-
-//package agentVagrant;
-//
-//import static agentVagrant.GlobalVars.*;
-//
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//
-//import jade.core.Agent;
-//
-//import javax.swing.JOptionPane;
-//
-//public class AgentDestroy extends Agent {
-//	ProcessBuilder pb;
-//	Process pr;
-//
-//	@Override
-//	protected void setup() {
-//		JOptionPane.showMessageDialog(null, "PRONTO PARA DESTRUIR!", "ALERTA", JOptionPane.WARNING_MESSAGE);
-//		String usuario;
-//		usuario = JOptionPane.showInputDialog(null, "Escreva o nome da maquina que ser√° destru√≠da", "ALERTA",
-//				JOptionPane.WARNING_MESSAGE);
-//		try {
-//			 String command;
-//            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-//                command = vagrantCommand + " /c cd " + vagrantDir + "\\" + usuario + " && " + vagrantCommand + " destroy -f";
-//            } else {
-//                command = vagrantCommand + " cd " + vagrantDir + "/" + usuario + " && " + vagrantCommand + " destroy -f";
-//            }
-//			pb = new ProcessBuilder(command);
-//			pr = pb.start();
-//			doDelete();
-//		} catch (IOException e) {
-//			System.out.println("entrou no catch1 ");
-//			e.printStackTrace();
-//		}
-//	}
-//}
