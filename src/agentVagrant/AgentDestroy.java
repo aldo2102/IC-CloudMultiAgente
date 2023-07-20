@@ -74,7 +74,7 @@ public class AgentDestroy extends Agent {
 
         try {
             // Run the 'vagrant destroy' command to destroy the specified machine
-            String[] destroyMachineCommand = {osCommand, cmdPath, "vagrant", "destroy", machineName, "--force"};
+            String[] destroyMachineCommand = {osCommand, cmdPath, "vagrant", "destroy", machineName, "--force", "--cleanup"};
             System.out.println("Destroying machine: " + Arrays.toString(destroyMachineCommand));
             ProcessBuilder pb = new ProcessBuilder(destroyMachineCommand);
             Process pr = pb.start();
