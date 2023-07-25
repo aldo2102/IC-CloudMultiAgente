@@ -7,11 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Scanner;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-//import java.util.UUID;
-
-import javax.swing.JOptionPane;
 
 import static agentVagrant.GlobalVars.*;
 
@@ -23,16 +20,11 @@ public class AgentStart extends Agent {
     @Override
     protected void setup() {
         System.out.println("----AgentStart Starting----");
-        Main.controller++;
-        //String MachineName = Integer.toString(Main.controller);
 
         try {
-            Scanner scanner = new Scanner(System.in);
-            String MachineName = JOptionPane.showInputDialog(null,"Enter the machine name: ");
-            scanner.close();
-
-            //String machineId = UUID.randomUUID().toString();
-            //esse id gerado ainda nao é exibido na listagem de maquinas
+            // Generate an ID with a random UUID + the agent name
+            UUID uuid = UUID.randomUUID();
+            String MachineName = sanitizeFileName(uuid + getAID().getName());
 
             // Disk root dir disk
             File rootDir = new File("/");
@@ -68,7 +60,7 @@ public class AgentStart extends Agent {
                 }
             } else {
                 System.out.println("Dir already exists");
-                // TODO: Fazer retorno caso o diretório com o nome dessa máquina já exista, para não sobrescrever a configuração da máquina
+                endAgent();
             }
 
             String vagrantFilePath = Paths.get(vagrantMachinePath, "Vagrantfile").toString();
@@ -197,12 +189,28 @@ public class AgentStart extends Agent {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        endAgent();
+    }
 
+    public static String sanitizeFileName(String name) {
+        if (name.contains(":")) {
+            name = name.replace(":", "_");
+        }
+        if (name.contains("-")) {
+            name = name.replace("-", "_");
+        }
+        if (name.contains("@")) {
+            int index = name.indexOf("@");
+            name = name.substring(0, index);
+        }
+        return name;
+    }
+
+    public void endAgent() {
         System.out.println("----AgentStart Ended..----");
+        CountDownLatch latch;
 
         Object[] args = getArguments();
-
-        CountDownLatch latch;
 
         if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
             latch = (CountDownLatch) args[0];
@@ -211,8 +219,6 @@ public class AgentStart extends Agent {
             doDelete();
             return;
         }
-
-        doDelete();
 
         latch.countDown();
     }

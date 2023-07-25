@@ -18,12 +18,10 @@ public class AgentList extends Agent {
 
         try {
             // List existing virtual machines
-
             String[] listMachines = {osCommand, cmdPath, "vagrant", "global-status", "--prune"};
             System.out.println("Listing machines: " + Arrays.toString(listMachines));
             ProcessBuilder pb = new ProcessBuilder(listMachines);
             Process pr = pb.start();
-
             BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String line;
 
@@ -39,11 +37,14 @@ public class AgentList extends Agent {
             e.printStackTrace();
         }
 
-        System.out.println("----AgentList Ended----");
+        endAgent();
+    }
+
+    public void endAgent() {
+        System.out.println("----AgentStart Ended..----");
+        CountDownLatch latch;
 
         Object[] args = getArguments();
-
-        CountDownLatch latch;
 
         if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
             latch = (CountDownLatch) args[0];
@@ -52,8 +53,6 @@ public class AgentList extends Agent {
             doDelete();
             return;
         }
-
-        doDelete();
 
         latch.countDown();
     }

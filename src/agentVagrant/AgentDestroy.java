@@ -40,23 +40,7 @@ public class AgentDestroy extends Agent {
         // Destroy the selected machine
         destroyMachine(machineName);
 
-        System.out.println("----AgentDestroy Ended----");
-
-        Object[] args = getArguments();
-
-        CountDownLatch latch;
-
-        if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
-            latch = (CountDownLatch) args[0];
-        } else {
-            System.err.println("Invalid reference to the CountDownLatch");
-            doDelete();
-            return;
-        }
-
-        doDelete();
-
-        latch.countDown();
+        endAgent();
     }
 
     private String getUserInput() {
@@ -85,5 +69,22 @@ public class AgentDestroy extends Agent {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+    }
+
+    public void endAgent() {
+        System.out.println("----AgentStart Ended..----");
+        CountDownLatch latch;
+
+        Object[] args = getArguments();
+
+        if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
+            latch = (CountDownLatch) args[0];
+        } else {
+            System.err.println("Invalid reference to the CountDownLatch");
+            doDelete();
+            return;
+        }
+
+        latch.countDown();
     }
 }

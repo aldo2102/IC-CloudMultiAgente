@@ -1,113 +1,163 @@
-//package agentVagrant;
+package agentVagrant;
+
+import jade.core.Agent;
+import jade.core.Runtime;
+import jade.core.ContainerID;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.concurrent.CountDownLatch;
+
+import static agentVagrant.GlobalVars.*;
+
+public class AgentMonitor extends Agent {
+
+    private String osCommand;
+    private String cmdPath;
+    private String vagrantMachinePath;
+    private String up;
+
+    // Método para inicializar as configurações de monitoramento (substitua os valores corretos)
+    public void setupMonitor(String osCommand, String cmdPath, String vagrantMachinePath, String up) {
+        this.osCommand = osCommand;
+        this.cmdPath = cmdPath;
+        this.vagrantMachinePath = vagrantMachinePath;
+        this.up = up;
+    }
+
+    // Método para coletar as informações de CPU e memória de uma máquina específica
+    private void collectMachineUsage() throws IOException, InterruptedException {
+
+        // Get the online VM's id's
+
+
+        // Turn on Virtual Machine
+//        String[] vagMachinePath = {osCommand, cmdPath, "cd " + vagrantMachinePath, "&& " + up};
+//        ProcessBuilder pb = new ProcessBuilder(vagMachinePath);
+//        Process pr = pb.start();
+//        pr.waitFor();
+
+        // Getting CPU usage data
+        String[] dstatData = {osCommand, cmdPath, "cd " + vagrantMachinePath, " && vagrant ssh -c 'top -b -n 1'"};
+        pb = new ProcessBuilder(dstatData);
+        pr = pb.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+        String line;
+
+        // Skip the rows until get to the row with the CPU data
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith("%Cpu(s)")) {
+                break;
+            }
+        }
+
+        // Extract the CPU usage from the found row
+        float cpuUsed = 0;
+        float cpuFree = 0;
+        if (line != null) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length >= 9) {
+                cpuUsed = Float.parseFloat(parts[1]);
+                cpuFree = Float.parseFloat(parts[3]);
+            } else {
+                System.out.println("Insufficient data on the line");
+            }
+        } else {
+            System.out.println("Line not found");
+        }
+
+        pr.waitFor();
+
+        // Getting Memory usage data
+        dstatData = new String[]{osCommand, cmdPath, "cd " + vagrantMachinePath, " && vagrant ssh -c 'free -m'"};
+        pb = new ProcessBuilder(dstatData);
+        pr = pb.start();
+        reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+
+        // Skip the rows until get to the row with the Memory data
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith("Mem:")) {
+                break;
+            }
+        }
+
+        // Extract the Memory usage from the found row
+        float memUsed = 0;
+        float memFree = 0;
+        if (line != null) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length >= 7) {
+                memUsed = Float.parseFloat(parts[2]);
+                memFree = Float.parseFloat(parts[3]);
+            } else {
+                System.out.println("Insufficient data on the line");
+            }
+        } else {
+            System.out.println("Line not found");
+        }
+
+        pr.waitFor();
+
+        // Print the results
+        System.out.println("CPU Used: " + cpuUsed);
+        System.out.println("CPU Free: " + cpuFree);
+        System.out.println("Memory Used: " + memUsed);
+        System.out.println("Memory Free: " + memFree);
+    }
+
+    // Método para coletar informações de todas as máquinas online
+    private void collectAllMachinesUsage() throws IOException, InterruptedException {
+//        // Obter referência para o ContainerController
+//        Runtime runtime = Runtime.instance();
+//        jade.core.Profile profile = new jade.core.ProfileImpl();
+//        jade.wrapper.AgentContainer mainContainer = runtime.createMainContainer(profile);
 //
-//import static agentVagrant.GlobalVars.*;
-//
-//import java.io.BufferedReader;
-//import java.io.FileWriter;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.io.PrintWriter;
-//
-//import jade.core.Agent;
-//
-//public class AgentMonitor extends Agent {
-//
-//	String r0, ler;
-//	ProcessBuilder processBuilder;
-//	Process pr;
-//	BufferedReader reader;
-//	String line;
-//
-//	@Override
-//	protected void setup() {
-//
-//		String usuario = GlobalVars.control + "";
-//		jade.lang.acl.ACLMessage TM0 = blockingReceive();
-//		System.out.println(TM0.getContent());
-//		ProcessBuilder processBuilder = new ProcessBuilder();
-//		System.out.println("---- Inicio do Agente Monitor ----");
-//		processBuilder.command("cmd.exe", "/c", "vagrant status");
-//
-//		try {
-//			 String[] command4;
-//            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-//                command4 = new String[]{"cmd.exe", "/c",
-//                        "cd " + GlobalVars.vagrantDir + " && " + GlobalVars.vagrantCommand + " ssh -c 'sudo apt-get install dstat'"};
-//            } else {
-//                command4 = new String[]{GlobalVars.vagrantCommand, "cd", GlobalVars.vagrantDir, "&&", GlobalVars.vagrantCommand, "ssh -c 'sudo apt-get install dstat'"};
-//            }
-//
-//			processBuilder = new ProcessBuilder(command4);
-//			Process pr = processBuilder.start();
-//			//pr.waitFor();
-//			reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-//			while (pr.waitFor() == 0 && (line = reader.readLine()) != null) {
-//				System.out.println("Entrou no loop");
-//				System.out.println(line);
-//			}
-//
-//			System.out.println("Dstat Instalado");
-//
-//			Runtime runtime = Runtime.getRuntime();
-//			 if (System.getProperty("os.name").toLowerCase().contains("win")) {
-//                runtime.exec("cmd.exe /c cd " + GlobalVars.vagrantDir + " && start cmd.exe /k \"" + GlobalVars.vagrantCommand + " ssh\"");
-//            } else {
-//                runtime.exec(GlobalVars.vagrantCommand + " cd " + GlobalVars.vagrantDir + " && " + GlobalVars.vagrantCommand + " ssh");
-//            }
-//            //pr.waitFor();
-//
-//			String[] command;
-//            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-//                command = new String[]{"cmd.exe", "/c",
-//                        "cd " + GlobalVars.vagrantDir + " && " + GlobalVars.vagrantCommand + " ssh -c 'dstat -cmdn '"};
-//            } else {
-//                command = new String[]{GlobalVars.vagrantCommand, "cd", GlobalVars.vagrantDir, "&&", GlobalVars.vagrantCommand, "ssh -c 'dstat -cmdn'"};
-//            }
-//
-//    		processBuilder = new ProcessBuilder(command);
-//
-//			pr = processBuilder.start();
-//			reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-//
-//			line = "";
-//			int count = 0;
-//			// String cpu = "";
-//			// float cpuFree = 0;
-//			float cpuUsed = 0;
-//			// float memFree = 0;
-//			float memUsed = 0;
-//			float mediaCpu = 0;
-//			float mediaMem = 0;
-//
-//			while ((line = reader.readLine()) != null) {
-//				line = line.trim().replaceAll("0;0", "");
-//				line = line.trim().replaceAll("\\s+", " ");
-//				line = line.trim().replaceAll("\\|+", " ");
-//				line = line.trim().replaceAll("[a-zA-Z]+", "");
-//				// System.out.println("line 4 "+line);
-//
-//				// line=line.trim().replaceAll(" ","P");
-//				String[] parts = line.split(" ");
-//				cpuUsed += Float.parseFloat(parts[0]);
-//				cpuUsed += Float.parseFloat(parts[1]);
-//				// cpuFree += Float.parseFloat(parts[2]);
-//				memUsed += Float.parseFloat(parts[7]);
-//				// memFree += Float.parseFloat(parts[10]);
-//				count++;
-//				mediaCpu = cpuUsed / count;
-//				mediaMem = memUsed / count;
-//
-//				FileWriter arq = new FileWriter(GlobalVars.vagrantDir + "/MediaCpuMem" + usuario + ".txt");
-//                PrintWriter gravarArq = new PrintWriter(arq);
-//                gravarArq.println("Media de CPU usada =" + mediaCpu);
-//                gravarArq.println("Media de Memoria usada em MegaBits =" + mediaMem);
-//                arq.close();
-//			}
-//
-//		} catch (IOException | InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		System.out.println("---- Fim do Agente Monitor ----");
-//		doDelete();
-//	}
-//}
+//        // Obter uma lista de todos os nomes de agentes/máquinas no container
+//        String agentName = mainContainer.getName();
+//        // Iterar sobre cada agente/máquina e coletar as informações de uso
+//        ContainerID machineID = new ContainerID(agentName, null);
+//        collectMachineUsage(machineID);
+    }
+
+    @Override
+    protected void setup() {
+        // Chame o método setupMonitor com as configurações apropriadas
+
+        // Disk root dir disk
+        File rootDir = new File("/");
+        String rootPath = rootDir.getAbsolutePath();
+        String vagrantPath = Paths.get(rootPath, "Hashicorp/Vagrant").toString();
+
+        setupMonitor(GlobalVars.osCommand, GlobalVars.getCmdPath(), vagrantPath, GlobalVars.up);
+
+        // Chame o método collectAllMachinesUsage para coletar e imprimir as informações de todas as máquinas online
+        try {
+            collectAllMachinesUsage();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Finalize o agente após a coleta das informações (opcional)
+        endAgent();
+    }
+
+    public void endAgent() {
+        System.out.println("----AgentStart Ended..----");
+        CountDownLatch latch;
+
+        Object[] args = getArguments();
+
+        if (args != null && args.length > 0 && args[0] instanceof CountDownLatch) {
+            latch = (CountDownLatch) args[0];
+        } else {
+            System.err.println("Invalid reference to the CountDownLatch");
+            doDelete();
+            return;
+        }
+
+        latch.countDown();
+    }
+}

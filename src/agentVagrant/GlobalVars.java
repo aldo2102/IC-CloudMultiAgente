@@ -23,7 +23,6 @@ public class GlobalVars {
             return "-c";
         }
     }
-    
 
     static {
         String osName = System.getProperty("os.name").toLowerCase();
@@ -41,7 +40,8 @@ public class GlobalVars {
             throw new UnsupportedOperationException("Operating system not supported");
         }
     }
-    public static String vagrant4 = "explorer.exe /separate /c";
+
+    public static final int EXIT_SYSTEM = 0;
     public static final int CREATE_MACHINES = 1;
     public static final int LIST_MACHINES = 2;
     public static final int MONITOR_MACHINES = 3;
