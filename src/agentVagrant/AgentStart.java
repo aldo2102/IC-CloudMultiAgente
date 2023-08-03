@@ -1,7 +1,7 @@
 package agentVagrant;
 
 import jade.core.Agent;
-
+import jade.lang.acl.ACLMessage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +32,7 @@ public class AgentStart extends Agent {
             scanner.close();
 
             //String machineId = UUID.randomUUID().toString();
-            //esse id gerado ainda nao é exibido na listagem de maquinas
+            //esse id gerado ainda não é exibido na listagem de maquinas
 
             // Disk root dir disk
             File rootDir = new File("/");
@@ -50,7 +50,7 @@ public class AgentStart extends Agent {
                 } catch (IOException e) {
                     System.out.println("Error creating machine dir: " + e.getMessage());
                 }
-                // TODO: Substituir essa forma de criar o diretório do hashicorp, caso não exista, o úsuario pode colocar manualmente onde está ou ele deve instalar o vagrant e instalar novamente o IC-CloudMultiAgente
+                
             }
 
             // Vagrant Virtual Machine Path '+ "_" + machineId'
@@ -187,6 +187,16 @@ public class AgentStart extends Agent {
             printWriter.println("Memory Free: " + memFree);
             printWriter.close();
 
+            // Create a string with the collected data to send to the AgentMonitor
+            String dataToSend = "Machine: " + MachineName + "\n"
+                    + "CPU Used: " + cpuUsed + "\n"
+                    + "CPU Free: " + cpuFree + "\n"
+                    + "Memory Used: " + memUsed + "\n"
+                    + "Memory Free: " + memFree + "\n";
+
+            // Send the data to the AgentMonitor
+            sendToMonitor(dataToSend);
+
             reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             while (pr.waitFor() == 0 && (line = reader.readLine()) != null) {
                 System.out.println(line);
@@ -216,6 +226,19 @@ public class AgentStart extends Agent {
 
         latch.countDown();
     }
+
+    private void sendToMonitor(String data) {
+        // Criar a mensagem ACL
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+
+        // Definir o destinatário da mensagem (o ID do agente monitor)
+        msg.addReceiver(getAID("AgentMonitor"));
+
+        // Definir o conteúdo da mensagem (os dados coletados)
+        msg.setContent(data);
+
+        // Enviar a mensagem
+        send(msg);
+        System.out.println("Data sent to AgentMonitor: \n" + data);
+    }
 }
-
-

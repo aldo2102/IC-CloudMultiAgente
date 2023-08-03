@@ -77,7 +77,18 @@ public class Main {
                                 break;
 
                             case MONITOR_MACHINES:
-                                //Todo
+                                try {
+                                    CountDownLatch latch = new CountDownLatch(1);
+                                    Object[] agentArgs = new Object[]{latch};
+                                    AgentController agentMonitor = platformController.createNewAgent(
+                                            "AgentMonitor" + System.currentTimeMillis(),
+                                            "agentVagrant.AgentMonitor",
+                                            agentArgs);
+                                    agentMonitor.start();
+                                    latch.await();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                                 break;
 
                             case DESTROY_MACHINES:

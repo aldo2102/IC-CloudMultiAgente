@@ -1,3 +1,124 @@
+package agentVagrant;
+
+import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.wrapper.StaleProxyException;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Scanner;
+
+public class AgentMonitor extends Agent {
+    private List<String> machines;
+    private String selectedMachine;
+
+    @Override
+    protected void setup() {
+        System.out.println("----AgentMonitor Starting----");
+
+        // Iniciar o comportamento para listar as máquinas criadas pelo usuário
+        addBehaviour(new ListMachinesBehaviour());
+    }
+
+    private class ListMachinesBehaviour extends OneShotBehaviour {
+        public void action() {
+            try {
+                // Obter uma referência para o container do agente
+                jade.wrapper.AgentContainer container = getContainerController();
+
+                // Criar uma instância do AgentList no container
+                jade.wrapper.AgentController agentListController = container.createNewAgent(
+                        "AgentList" + System.currentTimeMillis(),
+                        "agentVagrant.AgentList",
+                        null);
+                agentListController.start();
+
+                // Aguardar um curto período para garantir que o AgentList tenha tempo para listar as máquinas
+                Thread.sleep(1000);
+
+                // Obter a lista de máquinas criadas
+                machines = ((AgentList) agentListController.getO2AInterface(AgentList.class)).getMachineList();
+
+                // Exibir a lista de máquinas para o usuário escolher
+                System.out.println("---- List of Machines ----");
+                for (int i = 0; i < machines.size(); i++) {
+                    System.out.println((i + 1) + ". " + machines.get(i));
+                }
+
+                try (// Obter a escolha do usuário
+                Scanner scanner = new Scanner(System.in)) {
+                    int choice = -1;
+                    while (choice < 1 || choice > machines.size()) {
+                        System.out.print("Enter the number of the machine to monitor: ");
+                        choice = scanner.nextInt();
+                    }
+
+                    // Salvar a máquina selecionada
+                    selectedMachine = machines.get(choice - 1);
+                }
+                System.out.println("Selected machine: " + selectedMachine);
+
+                // Iniciar o comportamento para receber dados da máquina selecionada
+                addBehaviour(new ReceiveDataBehaviour());
+            } catch (StaleProxyException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class ReceiveDataBehaviour extends CyclicBehaviour {
+        public void action() {
+            
+            ACLMessage msg = receive();
+
+            if (msg != null) {
+                // Check message type (INFORM is used for data)
+                if (msg.getPerformative() == ACLMessage.INFORM) {
+                    // Get the message content (which contains the data)
+                    String data = msg.getContent();
+
+                    // Save the data to a file on the physical machine
+                    saveDataToFile(data);
+
+                    // Display the data in the monitor agent console
+                    System.out.println("Received data from " + selectedMachine + ": " + data);
+                }
+            } else {
+                // Caso não haja mensagem disponível no momento, bloquear o comportamento até que uma nova mensagem seja recebida
+                block();
+            }
+        }
+    }
+
+    private void saveDataToFile(String data) {
+        try {
+            // Caminho e nome do arquivo para salvar os dados
+            String filePath = "data.txt";
+
+            // Abrir o arquivo para escrita
+            FileWriter fileWriter = new FileWriter(filePath, true);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+
+            // Escrever os dados no arquivo
+            printWriter.println(data);
+
+            // Fechar o arquivo
+            printWriter.close();
+
+            System.out.println("Data saved to file: " + filePath);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving data to file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
 //package agentVagrant;
 //
 //import static agentVagrant.GlobalVars.*;

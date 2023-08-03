@@ -1,24 +1,29 @@
 package agentVagrant;
 
+import jade.core.Agent;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import jade.core.Agent;
 
 import static agentVagrant.GlobalVars.*;
 
 public class AgentList extends Agent {
+
+    private List<String> machineList;
 
     @Override
     protected void setup() {
         System.out.println("----AgentList Starting----");
 
         try {
-            // List existing virtual machines
+            machineList = new ArrayList<>();
 
+            // List existing virtual machines
             String[] listMachines = {osCommand, cmdPath, "vagrant", "global-status", "--prune"};
             System.out.println("Listing machines: " + Arrays.toString(listMachines));
             ProcessBuilder pb = new ProcessBuilder(listMachines);
@@ -27,10 +32,12 @@ public class AgentList extends Agent {
             BufferedReader reader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String line;
 
-            // Print result on output
-            System.out.println("Existing machines:");
+            // Add machine names to the list
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                String[] parts = line.trim().split("\\s+");
+                if (parts.length >= 3) {
+                    machineList.add(parts[1]);
+                }
             }
 
             pr.waitFor();
@@ -56,5 +63,9 @@ public class AgentList extends Agent {
         doDelete();
 
         latch.countDown();
+    }
+
+    public List<String> getMachineList() {
+        return machineList;
     }
 }
